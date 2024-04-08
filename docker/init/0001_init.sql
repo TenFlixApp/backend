@@ -3,7 +3,6 @@ CREATE TABLE IF NOT EXISTS users (
     email VARCHAR(255) NOT NULL UNIQUE,
     nom VARCHAR(255) NOT NULL,
     prenom VARCHAR(255) NOT NULL,
-    actif TINYINT(1) DEFAULT 1,
     uuid_avatar TEXT DEFAULT '' COMMENT 'uuid avatar de l''utilisateur',
     PRIMARY KEY (id_user)
 );
@@ -14,6 +13,7 @@ CREATE TABLE IF NOT EXISTS medias (
     titre VARCHAR(255) NOT NULL,
     uuid_media TEXT DEFAULT '' COMMENT 'uuid du media',
     description TEXT DEFAULT '',
+    updated_at TIMESTAMP DEFAULT NOW(),
     PRIMARY KEY (id_media),
     CONSTRAINT fk_medias_createur
         FOREIGN KEY (id_createur) REFERENCES users (id_user)
@@ -51,6 +51,7 @@ CREATE TABLE IF NOT EXISTS commentaires (
     id_media INT NOT NULL,
     id_parent INT DEFAULT NULL,
     commentaire TEXT NOT NULL,
+    updated_at TIMESTAMP DEFAULT NOW(),
     PRIMARY KEY (id_commentaire),
     CONSTRAINT fk_commentaires_createur
         FOREIGN KEY (id_createur) REFERENCES users (id_user)

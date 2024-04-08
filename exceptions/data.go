@@ -2,6 +2,7 @@ package exceptions
 
 // Erreurs SQL Gérées
 const (
+	SQL_ERROR_TRANS_STOP     = 6
 	SQL_ERROR_TRANS_COMMIT   = 5 // Erreur lors du rollback de la transaction
 	SQL_ERROR_TRANS_ROLLBACK = 4 // Erreur lors du rollback de la transaction
 	SQL_ERROR_TRANS_BEGIN    = 3 // Erreur lors du lancement de la transaction SQL
