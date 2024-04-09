@@ -9,6 +9,7 @@ import (
 	"github.com/joho/godotenv"
 
 	"backend/data"
+	"backend/routes"
 )
 
 func main() {
@@ -36,6 +37,17 @@ func main() {
 
 	// Application de la nouvelle configuration
 	router.Use(cors.New(configCors))
+
+	// users
+	router.POST("/user/register", routes.RegisterRoute)
+	router.PUT("/user/avatar", routes.ChangeAvatarRoute)
+	router.GET("/user/channel/:id", routes.GetUserChannelRoute)
+
+	// medias
+	router.DELETE("/media/:id", routes.DeleteMediaRoute)
+	router.POST("/media/upload", routes.UploadMediaRoute)
+
+	// commentaires
 
 	// Lancement du serveur
 	router.Run("localhost:8088")

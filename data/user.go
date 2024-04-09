@@ -2,51 +2,84 @@ package data
 
 import (
 	"backend/exceptions"
-
-	"github.com/go-sql-driver/mysql"
+	"database/sql"
+	"errors"
 )
 
+type UserInfo struct {
+	Nom        string `json:"nom"`
+	Prenom     string `json:"prenom`
+	UUIDAvatar string `json:"avatar"`
+}
+
 func RegisterUser(email string, nom string, prenom string) (err *exceptions.DataPackageError) {
-	// On ouvre une transaction BDD
-	tx, errTx := db.Begin()
-	// Si erreur, on plante
-	if errTx != nil {
-		// Gestion d'erreur
-		return &exceptions.DataPackageError{Message: "Unable to start transaction", Code: exceptions.SQL_ERROR_LAMBDA}
+	tx, errData := startTransaction()
+	if errData != nil {
+		return errData
 	}
 
 	// Insertion de l'utilisateur
 	_, errEx := tx.Exec(`INSERT INTO users (email, nom, prenom) VALUES (?, ?, ?)`, email, nom, prenom)
-	// Gestion erreur
-	if errEx != nil {
-		// Vérifier si c'est une erreur MySQL
-		if mysqlErr, ok := errEx.(*mysql.MySQLError); ok {
-			// Vérifier si c'est une erreur de clé dupliquée
-			if mysqlErr.Number == 1062 {
-				// Retour de l'erreur de duplication de clé
-				return &exceptions.DataPackageError{Message: "Duplicate key insertion", Code: exceptions.SQL_ERROR_DUPLICATE}
-			} else {
-				// Autre type d'erreur MySQL
-				return &exceptions.DataPackageError{Message: "SQL error", Code: exceptions.SQL_ERROR_LAMBDA}
-			}
-		} else {
-			// Autre type d'erreur
-			// Tentative de rollback
-			if rollbackErr := tx.Rollback(); rollbackErr != nil {
-				return &exceptions.DataPackageError{Message: "Unable to rollback", Code: exceptions.SQL_ERROR_TRANS_ROLLBACK}
-			}
-			return &exceptions.DataPackageError{Message: "Internal error", Code: exceptions.ERROR_LAMBDA}
-		}
+
+	errData = manageSqlError(errEx, tx)
+	if errData != nil {
+		return errData
 	}
 
-	// Commit la transaction
-	errTx = tx.Commit()
-	// Gestion erreur
-	if errTx != nil {
-		// Autre type d'erreur
-		return &exceptions.DataPackageError{Message: "Unable to commit transaction", Code: exceptions.ERROR_LAMBDA}
+	errData = closeTransaction(tx)
+	if errData != nil {
+		return errData
 	}
 
 	// Retourne pas d'erreur
 	return nil
+}
+
+func GetUserIDByEmail(email string) (int, error) {
+	var userID int
+
+	// Exécuter la requête SQL pour récupérer l'ID de l'utilisateur avec l'email spécifié
+	err := db.QueryRow("SELECT id_user FROM users WHERE email = ?", email).Scan(&userID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return 0, errors.New("user not found")
+		}
+		return 0, err
+	}
+
+	return userID, nil
+}
+
+func ChangeAvatar(uuid string, idUser int) *exceptions.DataPackageError {
+	tx, errData := startTransaction()
+	if errData != nil {
+		return errData
+	}
+
+	// Insertion de l'utilisateur
+	_, errEx := tx.Exec(`UPDATE users SET uuid_avatar = ? WHERE email = ?;`, uuid, idUser)
+
+	errData = manageSqlError(errEx, tx)
+	if errData != nil {
+		return errData
+	}
+
+	errData = closeTransaction(tx)
+	if errData != nil {
+		return errData
+	}
+
+	// Retourne pas d'erreur
+	return nil
+}
+
+func GetInfoUser(id int64) (*UserInfo, error) {
+	var user *UserInfo
+
+	err := db.QueryRow("SELECT nom, prenom, uuid_avatar FROM users WHERE id_user = ?", id).Scan(&user.Nom, &user.Prenom, &user.UUIDAvatar)
+	if err != nil {
+		return nil, errors.New("unable to get user info")
+	}
+
+	return user, nil
 }
