@@ -3,9 +3,12 @@ package routes
 import (
 	"backend/data"
 	"backend/helpers"
+	"bytes"
 	"fmt"
+	"io"
 	"mime/multipart"
 	"net/http"
+	"os"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -16,6 +19,44 @@ type FormMedia struct {
 	File        *multipart.FileHeader `form:"file" binding:"required"`
 	Cover       *multipart.FileHeader `form:"cover" binding:"required"`
 	Description string                `form:"title" binding:"required"`
+}
+
+func rerouteFiles(form FormMedia) string {
+	fileManagerRoute := os.Getenv("FILE_MANAGER_ROUTE") + "/upload"
+
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+	file, _ := form.File.Open()
+	cover, _ := form.Cover.Open()
+
+	filePart, _ := writer.CreateFormFile("file", form.File.Filename)
+	_, _ = io.Copy(filePart, file)
+
+	coverPart, _ := writer.CreateFormFile("cover", form.Cover.Filename)
+	_, _ = io.Copy(coverPart, cover)
+
+	_ = writer.Close()
+
+	req, err := http.NewRequest("POST", fileManagerRoute, body)
+	if err != nil {
+		return ""
+	}
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return ""
+	}
+	defer func(Body io.ReadCloser) {
+		_ = Body.Close()
+	}(resp.Body)
+
+	respBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return ""
+	}
+
+	return string(respBody)
 }
 
 func DeleteMediaRoute(c *gin.Context) {
@@ -48,8 +89,7 @@ func UploadMediaRoute(c *gin.Context) {
 		return
 	}
 
-	// TODO - Appel du file manager
-	uuid := "test"
+	uuid := rerouteFiles(form)
 
 	idUser, err := helpers.GetIdFromToken(c)
 	if err != nil {
