@@ -2,6 +2,7 @@ package data
 
 import (
 	"backend/exceptions"
+	"database/sql"
 	"errors"
 )
 
@@ -54,19 +55,21 @@ func CreateMedia(idCreateur int, titre string, uuid string, description string) 
 	return nil
 }
 
-func GetMediaFromUser(idUser int64) ([]*MediaPreview, error) {
-	var medias []*MediaPreview
+func GetMediaFromCreator(idCreator int64) ([]MediaPreview, error) {
+	var medias []MediaPreview
 
 	// Exécuter la requête SQL pour récupérer les vidéos de l'utilisateur triées par date de mise à jour décroissante
-	rows, err := db.Query("SELECT titre, uuid_media FROM videos WHERE id_user = ? ORDER BY updated_at DESC", idUser)
+	rows, err := db.Query("SELECT titre, uuid_media FROM medias WHERE id_createur = ? ORDER BY updated_at DESC", idCreator)
 	if err != nil {
-		return nil, errors.New("unable to get user's medias")
+		return nil, errors.New("unable to get creator's medias")
 	}
-	defer rows.Close()
+	defer func(rows *sql.Rows) {
+		_ = rows.Close()
+	}(rows)
 
 	// Parcourir les lignes de résultats et les ajouter au tableau
 	for rows.Next() {
-		var media *MediaPreview
+		var media MediaPreview
 		if err := rows.Scan(&media.Titre, &media.UUIDMedia); err != nil {
 			return nil, errors.New("errors when getting media's info")
 		}
@@ -80,5 +83,3 @@ func GetMediaFromUser(idUser int64) ([]*MediaPreview, error) {
 
 	return medias, nil
 }
-
-func GetDetailedMedia(idMedia int64)

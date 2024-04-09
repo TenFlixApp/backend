@@ -1,8 +1,6 @@
 package main
 
 import (
-	"log"
-
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
@@ -14,11 +12,8 @@ import (
 
 func main() {
 	// Charchement .env
-	err := godotenv.Load()
-	// Si erreur, on plente
-	if err != nil {
-		log.Fatalf("Error loading .env file")
-	}
+	_ = godotenv.Load()
+
 	// Tentative de connexion à la base de donnée
 	data.ConnectToDB()
 	// Programmation de la fermeture de la base de données à la fermeture du programme
@@ -50,5 +45,5 @@ func main() {
 	// commentaires
 
 	// Lancement du serveur
-	router.Run("localhost:8088")
+	_ = router.Run("localhost:8088")
 }

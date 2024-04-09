@@ -1,8 +1,8 @@
 package routes
 
 import (
-	helpers "backend/Helpers"
 	"backend/data"
+	"backend/helpers"
 	"bytes"
 	"encoding/json"
 	"fmt"
@@ -52,7 +52,9 @@ func RegisterRoute(c *gin.Context) {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	defer resp.Body.Close()
+	defer func(Body io.ReadCloser) {
+		_ = Body.Close()
+	}(resp.Body)
 
 	resBody, err := io.ReadAll(resp.Body)
 	if err != nil {

@@ -1,8 +1,8 @@
 package routes
 
 import (
-	helpers "backend/Helpers"
 	"backend/data"
+	"backend/helpers"
 	"fmt"
 	"mime/multipart"
 	"net/http"
@@ -81,7 +81,7 @@ func GetUserChannelRoute(c *gin.Context) {
 		return
 	}
 
-	medias, err := data.GetMediaFromUser(userID)
+	medias, err := data.GetMediaFromCreator(userID)
 	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
