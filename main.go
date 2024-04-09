@@ -46,6 +46,9 @@ func main() {
 	// medias
 	router.DELETE("/media/:id", routes.DeleteMediaRoute)
 	router.POST("/media/upload", routes.UploadMediaRoute)
+
+	// commentaires
+
 	// Lancement du serveur
 	router.Run("localhost:8088")
 }
