@@ -1,9 +1,0 @@
-services:
-  db:
-    container_name: maria_db_backend
-    image: docker.io/library/mariadb
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-    ports:
-      - 3307:3306

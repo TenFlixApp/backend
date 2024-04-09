@@ -11,6 +11,18 @@ type MediaPreview struct {
 	UUIDMedia string `json:"uuid"`
 }
 
+func parseMedias(rows *sql.Rows) ([]MediaPreview, error) {
+	medias := make([]MediaPreview, 0)
+	for rows.Next() {
+		var media MediaPreview
+		if err := rows.Scan(&media.Titre, &media.UUIDMedia); err != nil {
+			return nil, errors.New("errors when getting media's info")
+		}
+		medias = append(medias, media)
+	}
+	return medias, nil
+}
+
 func DeleteMedia(id int64) *exceptions.DataPackageError {
 	tx, errData := startTransaction()
 	if errData != nil {
@@ -56,8 +68,6 @@ func CreateMedia(idCreateur int, titre string, uuid string, description string) 
 }
 
 func GetMediaFromCreator(idCreator int64) ([]MediaPreview, error) {
-	var medias []MediaPreview
-
 	// Exécuter la requête SQL pour récupérer les vidéos de l'utilisateur triées par date de mise à jour décroissante
 	rows, err := db.Query("SELECT titre, uuid_media FROM medias WHERE id_createur = ? ORDER BY updated_at DESC", idCreator)
 	if err != nil {
@@ -67,19 +77,17 @@ func GetMediaFromCreator(idCreator int64) ([]MediaPreview, error) {
 		_ = rows.Close()
 	}(rows)
 
-	// Parcourir les lignes de résultats et les ajouter au tableau
-	for rows.Next() {
-		var media MediaPreview
-		if err := rows.Scan(&media.Titre, &media.UUIDMedia); err != nil {
-			return nil, errors.New("errors when getting media's info")
-		}
-		medias = append(medias, media)
-	}
+	return parseMedias(rows)
+}
 
-	// Vérifier les erreurs lors du parcours des résultats
-	if err := rows.Err(); err != nil {
-		return nil, errors.New("errors when getting media's info")
+func SearchMedia(searchTerm string) ([]MediaPreview, error) {
+	rows, err := db.Query("SELECT titre, uuid_media FROM medias WHERE titre LIKE ?", "%"+searchTerm+"%")
+	if err != nil {
+		return nil, errors.New("unable to search media")
 	}
+	defer func(rows *sql.Rows) {
+		_ = rows.Close()
+	}(rows)
 
-	return medias, nil
+	return parseMedias(rows)
 }

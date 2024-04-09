@@ -8,7 +8,7 @@ import (
 
 type UserInfo struct {
 	Nom        string `json:"nom"`
-	Prenom     string `json:"prenom`
+	Prenom     string `json:"prenom"`
 	UUIDAvatar string `json:"avatar"`
 }
 
@@ -74,7 +74,7 @@ func ChangeAvatar(uuid string, idUser int) *exceptions.DataPackageError {
 }
 
 func GetInfoUser(id int64) (*UserInfo, error) {
-	var user *UserInfo
+	user := new(UserInfo)
 
 	err := db.QueryRow("SELECT nom, prenom, uuid_avatar FROM users WHERE id_user = ?", id).Scan(&user.Nom, &user.Prenom, &user.UUIDAvatar)
 	if err != nil {

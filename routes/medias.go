@@ -89,3 +89,24 @@ func GetUserChannelRoute(c *gin.Context) {
 
 	c.IndentedJSON(http.StatusOK, gin.H{"user": user, "medias": medias})
 }
+
+func SearchMediaRoute(c *gin.Context) {
+	type Query struct {
+		SearchTerm string `json:"q" binding:"required"`
+	}
+
+	var query Query
+	if err := c.ShouldBind(&query); err != nil {
+		c.String(http.StatusBadRequest, fmt.Sprintf("err: %s", err.Error()))
+		return
+	}
+
+	fmt.Println(query.SearchTerm)
+	medias, err := data.SearchMedia(query.SearchTerm)
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.IndentedJSON(http.StatusOK, gin.H{"medias": medias})
+}

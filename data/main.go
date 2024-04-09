@@ -9,12 +9,8 @@ import (
 	"github.com/go-sql-driver/mysql"
 )
 
-// Variable driver BDD
 var db *sql.DB
 
-/**
-* Connexion à la base de données
- */
 func ConnectToDB() {
 	var err error
 	db, err = sql.Open("mysql", os.Getenv("DB_CONN_STRING"))
@@ -29,9 +25,6 @@ func ConnectToDB() {
 	log.Println("Connected to the database")
 }
 
-/**
-* Fermeture de la connexion BDD
- */
 func CloseDB() {
 	err := db.Close()
 	if err != nil {

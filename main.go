@@ -41,6 +41,7 @@ func main() {
 	// medias
 	router.DELETE("/media/:id", routes.DeleteMediaRoute)
 	router.POST("/media/upload", routes.UploadMediaRoute)
+	router.POST("/media/search", routes.SearchMediaRoute)
 
 	// commentaires
 
