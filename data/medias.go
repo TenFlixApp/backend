@@ -4,6 +4,8 @@ import (
 	"backend/exceptions"
 	"database/sql"
 	"errors"
+	"fmt"
+	"strings"
 )
 
 type MediaPreview struct {
@@ -77,7 +79,9 @@ func CreateMedia(idCreateur int, titre string, uuid string, description string) 
 }
 
 func GetMedias(ids []string) ([]MediaPreview, error) {
-	rows, err := db.Query(`SELECT m.titre, m.description, m.uuid_media, u.nom, u.prenom, u.uuid_avatar FROM medias m JOIN users u ON (m.id_createur = u.id_user) WHERE uuid_media IN (?)`, ids)
+	param := fmt.Sprintf("'%s'", strings.Join(ids, "','"))
+	query := fmt.Sprintf("SELECT m.titre, m.description, m.uuid_media, u.nom, u.prenom, u.uuid_avatar FROM medias m JOIN users u ON (m.id_createur = u.id_user) WHERE m.uuid_media IN (%s)", param)
+	rows, err := db.Query(query)
 	if err != nil {
 		return nil, errors.New("unable to get medias")
 	}

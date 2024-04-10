@@ -194,7 +194,7 @@ func GetRandomMediaRoute(c *gin.Context) {
 
 	var responseBody BodyType
 	if err := json.Unmarshal(respBody, &responseBody); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "unable to unmarshal response body"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -205,6 +205,7 @@ func GetRandomMediaRoute(c *gin.Context) {
 
 	medias, err := data.GetMedias(mediaIds)
 	if err != nil {
+		fmt.Printf("error: %s", err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	}
 
