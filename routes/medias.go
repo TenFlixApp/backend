@@ -22,14 +22,14 @@ type FormMedia struct {
 }
 
 func rerouteFiles(form FormMedia) string {
-	fileManagerRoute := os.Getenv("FILE_MANAGER_ROUTE") + "/upload"
+	fileManagerRoute := os.Getenv("FILE_MANAGER_ROUTE") + "upload"
 
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
 	file, _ := form.File.Open()
 	cover, _ := form.Cover.Open()
 
-	filePart, _ := writer.CreateFormFile("file", form.File.Filename)
+	filePart, _ := writer.CreateFormFile("video", form.File.Filename)
 	_, _ = io.Copy(filePart, file)
 
 	coverPart, _ := writer.CreateFormFile("cover", form.Cover.Filename)

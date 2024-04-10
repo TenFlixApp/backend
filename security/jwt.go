@@ -3,11 +3,16 @@ package security
 import (
 	"errors"
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 )
+
+func keyFunc(token *jwt.Token) (interface{}, error) {
+	return []byte(os.Getenv("GO_SECRET_KEY_ACCESS_TOKEN")), nil
+}
 
 func ExtractFromToken(c *gin.Context, key string) (string, error) {
 	// Récupérer le token d'authentification du header Authorization
@@ -25,7 +30,7 @@ func ExtractFromToken(c *gin.Context, key string) (string, error) {
 	tokenString := parts[1]
 
 	// Parse le token JWT sans vérification de signature
-	token, err := jwt.Parse(tokenString, nil)
+	token, err := jwt.Parse(tokenString, keyFunc)
 	if err != nil {
 		return "", fmt.Errorf("error parsing token: %w", err)
 	}
