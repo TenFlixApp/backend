@@ -36,12 +36,13 @@ func main() {
 	// users
 	router.POST("/user/register", routes.RegisterRoute)
 	router.PUT("/user/avatar", routes.ChangeAvatarRoute)
-	router.GET("/user/channel/:id", routes.GetUserChannelRoute)
+	router.GET("/user/:id", routes.GetUserChannelRoute)
 
 	// medias
 	router.DELETE("/media/:id", routes.DeleteMediaRoute)
 	router.POST("/media/upload", routes.UploadMediaRoute)
 	router.POST("/media/search", routes.SearchMediaRoute)
+	router.GET("/media/random", routes.GetRandomMediaRoute)
 
 	// commentaires
 
