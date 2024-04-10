@@ -150,3 +150,33 @@ func SearchMediaRoute(c *gin.Context) {
 
 	c.IndentedJSON(http.StatusOK, gin.H{"medias": medias})
 }
+
+func GetRandomMediaRoute(c *gin.Context) {
+	count, success := c.GetQuery("count")
+
+	if !success {
+		c.String(http.StatusBadRequest, "id is required")
+		return
+	}
+
+	_, err := strconv.Atoi(count)
+	if err != nil {
+		c.String(http.StatusBadRequest, "count must be a valid integer")
+		return
+	}
+
+	// send get request to file manager on route /files/random?count=:count&type=media
+	resp, err := http.Get(os.Getenv("FILE_MANAGER_ROUTE") + "/files/random?count=" + count + "&type=media")
+	if err != nil {
+		c.String(http.StatusInternalServerError, "error while fetching data")
+		return
+	}
+
+	respBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		c.String(http.StatusInternalServerError, "error while reading data")
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"medias": respBody})
+}
