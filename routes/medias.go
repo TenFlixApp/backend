@@ -22,6 +22,15 @@ type FormMedia struct {
 	Description string                `form:"title" binding:"required"`
 }
 
+type FileManagerResponse struct {
+	Links struct {
+		Cover  string `json:"cover"`
+		Stream string `json:"stream"`
+	} `json:"_links"`
+	Id   string `json:"id"`
+	Type string `json:"type"`
+}
+
 func rerouteFiles(form FormMedia) string {
 	fileManagerRoute := os.Getenv("FILE_MANAGER_ROUTE") + "upload"
 
@@ -179,11 +188,20 @@ func GetRandomMediaRoute(c *gin.Context) {
 		return
 	}
 
-	var responseBody interface{}
+	type BodyType struct {
+		Medias []FileManagerResponse `json:"medias"`
+	}
+
+	var responseBody BodyType
 	if err := json.Unmarshal(respBody, &responseBody); err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "unable to unmarshal response body"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"medias": responseBody})
+	var mediaIds = make([]string, len(responseBody.Medias))
+	for i, media := range responseBody.Medias {
+		mediaIds[i] = media.Id
+	}
+
+	c.JSON(http.StatusOK, gin.H{"medias": data.GetMedias(mediaIds)})
 }
