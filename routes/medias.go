@@ -4,6 +4,7 @@ import (
 	"backend/data"
 	"backend/helpers"
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"mime/multipart"
@@ -166,7 +167,7 @@ func GetRandomMediaRoute(c *gin.Context) {
 	}
 
 	// send get request to file manager on route /files/random?count=:count&type=media
-	resp, err := http.Get(os.Getenv("FILE_MANAGER_ROUTE") + "/files/random?count=" + count + "&type=media")
+	resp, err := http.Get(os.Getenv("FILE_MANAGER_ROUTE") + "files/random?count=" + count + "&type=media")
 	if err != nil {
 		c.String(http.StatusInternalServerError, "error while fetching data")
 		return
@@ -178,5 +179,11 @@ func GetRandomMediaRoute(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"medias": respBody})
+	var responseBody interface{}
+	if err := json.Unmarshal(respBody, &responseBody); err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "unable to unmarshal response body"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"medias": responseBody})
 }
