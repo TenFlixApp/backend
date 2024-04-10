@@ -65,19 +65,19 @@ func DeleteMediaRoute(c *gin.Context) {
 	id := c.Param("id")
 	param, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "incorrect id"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "incorrect id"})
 		return
 	}
 
 	errData := data.DeleteMedia(param)
 	if errData != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": errData.Message})
+		c.JSON(http.StatusBadRequest, gin.H{"error": errData.Message})
 		return
 	}
 
 	// to do : delete in file manager
 
-	c.IndentedJSON(http.StatusOK, gin.H{"message": "file deleted"})
+	c.JSON(http.StatusOK, gin.H{"message": "file deleted"})
 	return
 }
 
@@ -94,17 +94,17 @@ func UploadMediaRoute(c *gin.Context) {
 
 	idUser, err := helpers.GetIdFromToken(c)
 	if err != nil {
-		c.IndentedJSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
 	errData := data.CreateMedia(idUser, form.Title, uuid, form.Description)
 	if errData != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": errData.Message})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": errData.Message})
 		return
 	}
 
-	c.IndentedJSON(http.StatusCreated, gin.H{"message": "media uploaded"})
+	c.JSON(http.StatusCreated, gin.H{"message": "media uploaded"})
 	return
 }
 
@@ -112,23 +112,23 @@ func GetUserChannelRoute(c *gin.Context) {
 	// Récupérer l'ID de l'utilisateur depuis les paramètres de l'URL
 	userID, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "invalid user"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid user"})
 		return
 	}
 
 	user, err := data.GetUserInfo(userID)
 	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	medias, err := data.GetMediaFromCreator(userID)
 	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.IndentedJSON(http.StatusOK, gin.H{"user": user, "medias": medias})
+	c.JSON(http.StatusOK, gin.H{"user": user, "medias": medias})
 }
 
 func SearchMediaRoute(c *gin.Context) {
@@ -138,18 +138,18 @@ func SearchMediaRoute(c *gin.Context) {
 
 	var query Query
 	if err := c.ShouldBind(&query); err != nil {
-		c.String(http.StatusBadRequest, fmt.Sprintf("err: %s", err.Error()))
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	fmt.Println(query.SearchTerm)
 	medias, err := data.SearchMedia(query.SearchTerm)
 	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.IndentedJSON(http.StatusOK, gin.H{"medias": medias})
+	c.JSON(http.StatusOK, gin.H{"medias": medias})
 }
 
 func GetRandomMediaRoute(c *gin.Context) {
@@ -181,7 +181,7 @@ func GetRandomMediaRoute(c *gin.Context) {
 
 	var responseBody interface{}
 	if err := json.Unmarshal(respBody, &responseBody); err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "unable to unmarshal response body"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "unable to unmarshal response body"})
 		return
 	}
 

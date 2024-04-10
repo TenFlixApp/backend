@@ -28,12 +28,12 @@ type FormAvatar struct {
 func RegisterRoute(c *gin.Context) {
 	var user input
 	if err := c.BindJSON(&user); err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "invalid input"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid input"})
 		return
 	}
 
 	if user.Nom == "" || user.Prenom == "" || user.Email == "" || user.Password == "" {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "invalid input"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid input"})
 		return
 	}
 
@@ -43,13 +43,13 @@ func RegisterRoute(c *gin.Context) {
 	req, err := http.NewRequest("POST", os.Getenv("GUARDIAN_ROUTE")+"register", bodyReader)
 
 	if err != nil {
-		c.IndentedJSON(http.StatusConflict, gin.H{"error": "unable to create request"})
+		c.JSON(http.StatusConflict, gin.H{"error": "unable to create request"})
 		return
 	}
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 	defer func(Body io.ReadCloser) {
@@ -58,7 +58,7 @@ func RegisterRoute(c *gin.Context) {
 
 	resBody, err := io.ReadAll(resp.Body)
 	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "unable to read response body"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "unable to read response body"})
 		return
 	}
 
@@ -69,17 +69,17 @@ func RegisterRoute(c *gin.Context) {
 
 	dataError := data.RegisterUser(user.Email, user.Nom, user.Prenom)
 	if dataError != nil {
-		c.IndentedJSON(http.StatusConflict, gin.H{"error": dataError.Message})
+		c.JSON(http.StatusConflict, gin.H{"error": dataError.Message})
 		return
 	}
 
 	var responseBody interface{}
 	if err := json.Unmarshal(resBody, &responseBody); err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "unable to unmarshal response body"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "unable to unmarshal response body"})
 		return
 	}
 
-	c.IndentedJSON(http.StatusCreated, responseBody)
+	c.JSON(http.StatusCreated, responseBody)
 }
 
 func ChangeAvatarRoute(c *gin.Context) {
@@ -96,16 +96,16 @@ func ChangeAvatarRoute(c *gin.Context) {
 
 	idUser, err := helpers.GetIdFromToken(c)
 	if err != nil {
-		c.IndentedJSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
 	errData := data.ChangeAvatar(uuid, idUser)
 	if errData != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": errData.Message})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": errData.Message})
 		return
 	}
 
-	c.IndentedJSON(http.StatusCreated, gin.H{"message": "avatar changed"})
+	c.JSON(http.StatusCreated, gin.H{"message": "avatar changed"})
 	return
 }
