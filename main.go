@@ -37,6 +37,14 @@ func main() {
 	router.POST("/media/search", routes.SearchMediaRoute)
 	router.GET("/media/random", routes.GetRandomMediaRoute)
 
+	// playlists
+	router.POST("/playlist", routes.CreatePlaylistRoute)
+	router.DELETE("/playlist/:id", routes.DeletePlaylistRoute)
+	router.POST("/playlist/media", routes.AddMediaToPlaylistRoute)
+	router.DELETE("/playlist/media", routes.DeleteMediaFromPlaylistRoute)
+	router.GET("/playlist/:id", routes.GetPlaylistRoute)
+	router.GET("playlists", routes.GetPlaylistsFromUserRoute)
+
 	// commentaires
 
 	_ = router.Run("localhost:8088")
