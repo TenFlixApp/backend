@@ -76,6 +76,18 @@ func CreateMedia(idCreateur int, titre string, uuid string, description string) 
 	return nil
 }
 
+func GetMedias(ids []string) ([]MediaPreview, error) {
+	rows, err := db.Query(`SELECT m.titre, m.description, m.uuid_media, u.nom, u.prenom, u.uuid_avatar FROM medias m JOIN users u ON (m.id_createur = u.id_user) WHERE uuid_media IN (?)`, ids)
+	if err != nil {
+		return nil, errors.New("unable to get medias")
+	}
+	defer func(rows *sql.Rows) {
+		_ = rows.Close()
+	}(rows)
+
+	return parseMedias(rows, nil)
+}
+
 func GetMediaFromCreator(idCreator int64) ([]MediaPreview, error) {
 	createur, err := GetUserInfo(idCreator)
 	if err != nil {
