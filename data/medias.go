@@ -7,15 +7,26 @@ import (
 )
 
 type MediaPreview struct {
-	Titre     string `json:"titre"`
-	UUIDMedia string `json:"uuid"`
+	Titre       string   `json:"titre"`
+	Description string   `json:"description"`
+	UUIDMedia   string   `json:"uuid"`
+	Createur    UserInfo `json:"createur"`
 }
 
-func parseMedias(rows *sql.Rows) ([]MediaPreview, error) {
+func parseMedias(rows *sql.Rows, createur *UserInfo) ([]MediaPreview, error) {
 	medias := make([]MediaPreview, 0)
 	for rows.Next() {
-		var media MediaPreview
-		if err := rows.Scan(&media.Titre, &media.UUIDMedia); err != nil {
+		media := MediaPreview{}
+		var err error
+		if createur == nil {
+			crea := UserInfo{}
+			err = rows.Scan(&media.Titre, &media.Description, &media.UUIDMedia, &crea.Nom, &crea.Prenom, &crea.UUIDAvatar)
+			media.Createur = crea
+		} else {
+			err = rows.Scan(&media.Titre, &media.Description, &media.UUIDMedia)
+			media.Createur = *createur
+		}
+		if err != nil {
 			return nil, errors.New("errors when getting media's info")
 		}
 		medias = append(medias, media)
@@ -41,7 +52,6 @@ func DeleteMedia(id int64) *exceptions.DataPackageError {
 		return errData
 	}
 
-	// Retourne pas d'erreur
 	return nil
 }
 
@@ -63,13 +73,16 @@ func CreateMedia(idCreateur int, titre string, uuid string, description string) 
 		return errData
 	}
 
-	// Retourne pas d'erreur
 	return nil
 }
 
 func GetMediaFromCreator(idCreator int64) ([]MediaPreview, error) {
-	// Exécuter la requête SQL pour récupérer les vidéos de l'utilisateur triées par date de mise à jour décroissante
-	rows, err := db.Query("SELECT titre, uuid_media FROM medias WHERE id_createur = ? ORDER BY updated_at DESC", idCreator)
+	createur, err := GetUserInfo(idCreator)
+	if err != nil {
+		return nil, err
+	}
+
+	rows, err := db.Query("SELECT titre, description, uuid_media FROM medias WHERE id_createur = ? ORDER BY updated_at DESC", idCreator)
 	if err != nil {
 		return nil, errors.New("unable to get creator's medias")
 	}
@@ -77,11 +90,11 @@ func GetMediaFromCreator(idCreator int64) ([]MediaPreview, error) {
 		_ = rows.Close()
 	}(rows)
 
-	return parseMedias(rows)
+	return parseMedias(rows, createur)
 }
 
 func SearchMedia(searchTerm string) ([]MediaPreview, error) {
-	rows, err := db.Query("SELECT titre, uuid_media FROM medias WHERE titre LIKE ?", "%"+searchTerm+"%")
+	rows, err := db.Query(`SELECT m.titre, m.description, m.uuid_media, u.nom, u.prenom, u.uuid_avatar FROM medias m JOIN users u ON (m.id_createur = u.id_user) WHERE titre LIKE ?`, "%"+searchTerm+"%")
 	if err != nil {
 		return nil, errors.New("unable to search media")
 	}
@@ -89,5 +102,5 @@ func SearchMedia(searchTerm string) ([]MediaPreview, error) {
 		_ = rows.Close()
 	}(rows)
 
-	return parseMedias(rows)
+	return parseMedias(rows, nil)
 }

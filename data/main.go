@@ -3,6 +3,7 @@ package data
 import (
 	"backend/exceptions"
 	"database/sql"
+	"errors"
 	"log"
 	"os"
 
@@ -59,7 +60,8 @@ func manageSqlError(errEx error, tx *sql.Tx) *exceptions.DataPackageError {
 	// Gestion erreur
 	if errEx != nil {
 		// Vérifier si c'est une erreur MySQL
-		if mysqlErr, ok := errEx.(*mysql.MySQLError); ok {
+		var mysqlErr *mysql.MySQLError
+		if errors.As(errEx, &mysqlErr) {
 			// Vérifier si c'est une erreur de clé dupliquée
 			if mysqlErr.Number == 1062 {
 				// Retour de l'erreur de duplication de clé

@@ -41,7 +41,7 @@ func GetUserIDByEmail(email string) (int, error) {
 	// Exécuter la requête SQL pour récupérer l'ID de l'utilisateur avec l'email spécifié
 	err := db.QueryRow("SELECT id_user FROM users WHERE email = ?", email).Scan(&userID)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return 0, errors.New("user not found")
 		}
 		return 0, err
@@ -73,7 +73,7 @@ func ChangeAvatar(uuid string, idUser int) *exceptions.DataPackageError {
 	return nil
 }
 
-func GetInfoUser(id int64) (*UserInfo, error) {
+func GetUserInfo(id int64) (*UserInfo, error) {
 	user := new(UserInfo)
 
 	err := db.QueryRow("SELECT nom, prenom, uuid_avatar FROM users WHERE id_user = ?", id).Scan(&user.Nom, &user.Prenom, &user.UUIDAvatar)

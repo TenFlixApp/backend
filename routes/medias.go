@@ -116,7 +116,7 @@ func GetUserChannelRoute(c *gin.Context) {
 		return
 	}
 
-	user, err := data.GetInfoUser(userID)
+	user, err := data.GetUserInfo(userID)
 	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
