@@ -47,5 +47,5 @@ func main() {
 
 	// commentaires
 
-	_ = router.Run("localhost:8088")
+	_ = router.Run(":8088")
 }

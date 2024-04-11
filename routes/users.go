@@ -5,7 +5,6 @@ import (
 	"backend/helpers"
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -28,7 +27,7 @@ type FormAvatar struct {
 func RegisterRoute(c *gin.Context) {
 	var user input
 	if err := c.BindJSON(&user); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid input"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -37,13 +36,13 @@ func RegisterRoute(c *gin.Context) {
 		return
 	}
 
-	jsonBody := []byte(`{"username":"` + user.Email + `", "password":"` + user.Password + `"}`)
+	jsonBody := []byte(`{"username":"` + user.Email + `", "password":"` + user.Password + `", "rights": 1}`)
 	bodyReader := bytes.NewReader(jsonBody)
 
 	req, err := http.NewRequest("POST", os.Getenv("GUARDIAN_ROUTE")+"register", bodyReader)
 
 	if err != nil {
-		c.JSON(http.StatusConflict, gin.H{"error": "unable to create request"})
+		c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -58,7 +57,7 @@ func RegisterRoute(c *gin.Context) {
 
 	resBody, err := io.ReadAll(resp.Body)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "unable to read response body"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -87,7 +86,7 @@ func ChangeAvatarRoute(c *gin.Context) {
 
 	// Bind form data
 	if err := c.ShouldBind(&form); err != nil {
-		c.String(http.StatusBadRequest, fmt.Sprintf("err: %s", err.Error()))
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
