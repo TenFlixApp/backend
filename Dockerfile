@@ -12,5 +12,5 @@ COPY security/ ./security/
 COPY *.go ./
 RUN go build -o ./export.out
 
-EXPOSE 8080/tcp
+EXPOSE 8088/tcp
 CMD ["/app/export.out"]
