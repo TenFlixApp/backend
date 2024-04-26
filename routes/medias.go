@@ -87,7 +87,6 @@ func DeleteMediaRoute(c *gin.Context) {
 	// to do : delete in file manager
 
 	c.JSON(http.StatusOK, gin.H{"message": "file deleted"})
-	return
 }
 
 func UploadMediaRoute(c *gin.Context) {
@@ -114,7 +113,6 @@ func UploadMediaRoute(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, gin.H{"message": "media uploaded"})
-	return
 }
 
 func GetUserChannelRoute(c *gin.Context) {

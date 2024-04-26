@@ -83,3 +83,25 @@ func GetUserInfo(id int64) (*UserInfo, error) {
 
 	return user, nil
 }
+
+func CountUsers() (int, error) {
+	var count int
+
+	err := db.QueryRow("SELECT COUNT(*) FROM users").Scan(&count)
+	if err != nil {
+		return 0, errors.New("unable to count users")
+	}
+
+	return count, nil
+}
+
+func CountCreators() (int, error) {
+	var count int
+
+	err := db.QueryRow("SELECT COUNT(DISTINCT id_createur) FROM medias").Scan(&count)
+	if err != nil {
+		return 0, errors.New("unable to count active users")
+	}
+
+	return count, nil
+}

@@ -106,5 +106,4 @@ func ChangeAvatarRoute(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, gin.H{"message": "avatar changed"})
-	return
 }

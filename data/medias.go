@@ -120,3 +120,12 @@ func SearchMedia(searchTerm string) ([]MediaPreview, error) {
 
 	return parseMedias(rows, nil)
 }
+
+func CountMedias() (int, error) {
+	var count int
+	err := db.QueryRow("SELECT COUNT(*) FROM medias").Scan(&count)
+	if err != nil {
+		return 0, errors.New("unable to count medias")
+	}
+	return count, nil
+}
