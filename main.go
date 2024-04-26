@@ -45,7 +45,8 @@ func main() {
 	router.GET("/playlist/:id", routes.GetPlaylistRoute)
 	router.GET("playlists", routes.GetPlaylistsFromUserRoute)
 
-	// commentaires
+	// metrics
+	router.GET("/metrics/dashboard", routes.GetDashboardStatsRoute)
 
 	_ = router.Run(":8088")
 }

@@ -7,8 +7,10 @@ RUN go mod download
 COPY data/ ./data/
 COPY exceptions/ ./exceptions/
 COPY helpers/ ./helpers/
+COPY res/ ./res/
 COPY routes/ ./routes/
 COPY security/ ./security/
+COPY services/ ./services/
 COPY *.go ./
 RUN go build -o ./export.out
 
