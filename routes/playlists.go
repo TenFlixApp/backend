@@ -36,7 +36,6 @@ func CreatePlaylistRoute(c *gin.Context) {
 }
 
 func DeletePlaylistRoute(c *gin.Context) {
-	// Récupérer l'ID de l'utilisateur à supprimer depuis les paramètres de l'URL
 	id := c.Param("id")
 	param, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {

@@ -16,7 +16,6 @@ func unmarshalArrayFromResponse(res *http.Response, err error) ([]map[string]int
 	}
 	defer res.Body.Close()
 
-	// get res body content
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, err

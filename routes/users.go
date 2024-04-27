@@ -83,8 +83,6 @@ func RegisterRoute(c *gin.Context) {
 
 func ChangeAvatarRoute(c *gin.Context) {
 	var form FormAvatar
-
-	// Bind form data
 	if err := c.ShouldBind(&form); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

@@ -18,7 +18,6 @@ func RegisterUser(email string, nom string, prenom string) (err *exceptions.Data
 		return errData
 	}
 
-	// Insertion de l'utilisateur
 	_, errEx := tx.Exec(`INSERT INTO users (email, nom, prenom) VALUES (?, ?, ?)`, email, nom, prenom)
 
 	errData = manageSqlError(errEx, tx)
@@ -31,14 +30,12 @@ func RegisterUser(email string, nom string, prenom string) (err *exceptions.Data
 		return errData
 	}
 
-	// Retourne pas d'erreur
 	return nil
 }
 
 func GetUserIDByEmail(email string) (int, error) {
 	var userID int
 
-	// Exécuter la requête SQL pour récupérer l'ID de l'utilisateur avec l'email spécifié
 	err := db.QueryRow("SELECT id_user FROM users WHERE email = ?", email).Scan(&userID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -56,7 +53,6 @@ func ChangeAvatar(uuid string, idUser int) *exceptions.DataPackageError {
 		return errData
 	}
 
-	// Insertion de l'utilisateur
 	_, errEx := tx.Exec(`UPDATE users SET uuid_avatar = ? WHERE email = ?;`, uuid, idUser)
 
 	errData = manageSqlError(errEx, tx)
@@ -69,7 +65,6 @@ func ChangeAvatar(uuid string, idUser int) *exceptions.DataPackageError {
 		return errData
 	}
 
-	// Retourne pas d'erreur
 	return nil
 }
 

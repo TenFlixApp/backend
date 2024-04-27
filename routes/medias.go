@@ -70,7 +70,6 @@ func rerouteFiles(form FormMedia) string {
 }
 
 func DeleteMediaRoute(c *gin.Context) {
-	// Récupérer l'ID de l'utilisateur à supprimer depuis les paramètres de l'URL
 	id := c.Param("id")
 	param, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
@@ -84,15 +83,13 @@ func DeleteMediaRoute(c *gin.Context) {
 		return
 	}
 
-	// to do : delete in file manager
+	// TODO : delete in file manager
 
 	c.JSON(http.StatusOK, gin.H{"message": "file deleted"})
 }
 
 func UploadMediaRoute(c *gin.Context) {
 	var form FormMedia
-
-	// Bind form data
 	if err := c.ShouldBind(&form); err != nil {
 		c.String(http.StatusBadRequest, fmt.Sprintf("err: %s", err.Error()))
 		return
@@ -116,7 +113,6 @@ func UploadMediaRoute(c *gin.Context) {
 }
 
 func GetUserChannelRoute(c *gin.Context) {
-	// Récupérer l'ID de l'utilisateur depuis les paramètres de l'URL
 	userID, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid user"})
@@ -173,7 +169,6 @@ func GetRandomMediaRoute(c *gin.Context) {
 		return
 	}
 
-	// send get request to file manager on route /files/random?count=:count&type=media
 	resp, err := http.Get(os.Getenv("FILE_MANAGER_ROUTE") + "files/random?count=" + count + "&type=media")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "error while fetching data"})
